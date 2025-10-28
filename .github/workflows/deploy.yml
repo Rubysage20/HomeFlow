@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd homeflow-frontend
-        npm ci
+        npm install
         
     - name: Build Angular app
       run: |
