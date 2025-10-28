@@ -49,10 +49,10 @@ app.get('/api/health', (req, res) => {
 });
 
 // API Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/households', require('./routes/households'));
-app.use('/api/tasks', require('./routes/tasks'));
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/users', require('./routes/usersRoutes'));
+app.use('/api/households', require('./routes/householdRoutes'));
+app.use('/api/tasks', require('./routes/tasksRoutes'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
