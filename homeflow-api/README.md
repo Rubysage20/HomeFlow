@@ -2,7 +2,7 @@
 
 Backend API for HomeFlow - A smart household task management app that automatically divides tasks among family members based on availability, skill, workload, and time capacity.
 
-## 🚀 Features
+##  Features
 
 - **Smart Task Distribution** - Intelligent algorithm automatically assigns tasks based on:
   - Available time capacity
@@ -17,59 +17,9 @@ Backend API for HomeFlow - A smart household task management app that automatica
 - **Gamification** - Points, badges, and streaks to motivate task completion
 - **RESTful API** - Clean, documented API endpoints
 
-## 📋 Prerequisites
 
-- Node.js (v14 or higher)
-- MongoDB (local or MongoDB Atlas)
-- npm or yarn
 
-## 🛠️ Installation
-
-1. **Clone or download the project**
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Create environment file**
-   
-   Copy `.env.example` to `.env` and update the values:
-   ```bash
-   cp .env.example .env
-   ```
-
-   Update these variables in `.env`:
-   ```
-   NODE_ENV=development
-   PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/homeflow
-   JWT_SECRET=your_super_secret_jwt_key_change_this
-   JWT_EXPIRE=30d
-   ```
-
-4. **Start MongoDB**
-   
-   Make sure MongoDB is running on your machine:
-   ```bash
-   # If using local MongoDB
-   mongod
-   
-   # Or use MongoDB Atlas (cloud) - update MONGODB_URI in .env
-   ```
-
-5. **Run the server**
-   ```bash
-   # Development mode (with nodemon)
-   npm run dev
-   
-   # Production mode
-   npm start
-   ```
-
-The server will start on `http://localhost:5000`
-
-## 📚 API Endpoints
+##  API Endpoints
 
 ### Authentication
 - `POST /api/auth/register` - Register new user
@@ -105,7 +55,7 @@ The server will start on `http://localhost:5000`
 - `POST /api/tasks/auto-assign` - Auto-assign all open tasks (Protected/Admin)
 - `POST /api/tasks/:id/swap` - Swap task with another user (Protected)
 
-## 🧠 Smart Auto-Assign Algorithm
+## Smart Auto-Assign Algorithm
 
 The core feature of HomeFlow is the intelligent task distribution algorithm located in `/src/utils/taskSplitter.js`.
 
@@ -126,7 +76,7 @@ POST /api/tasks/auto-assign
 Authorization: Bearer {admin_token}
 ```
 
-## 📝 Example Requests
+## Example Requests
 
 ### Register a User
 ```bash
@@ -175,7 +125,7 @@ POST http://localhost:5000/api/tasks/auto-assign
 Authorization: Bearer {admin_token}
 ```
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 homeflow-api/
@@ -218,14 +168,14 @@ homeflow-api/
 - **Validation:** express-validator
 - **CORS:** cors middleware
 
-## 🚧 Development
+## Development
 
 For development with auto-reload:
 ```bash
 npm run dev
 ```
 
-## 📦 Dependencies
+## Dependencies
 
 ```json
 {
@@ -239,22 +189,9 @@ npm run dev
 }
 ```
 
-## 🎯 Next Steps
+##  Author
 
-1. **Frontend Development** - Build Angular frontend to consume this API
-2. **Testing** - Add unit and integration tests
-3. **Notifications** - Implement push notifications with Firebase
-4. **Analytics** - Add household performance dashboards
-5. **Deployment** - Deploy to Render, Railway, or AWS
-
-## 📄 License
-
-MIT
-
-## 👨‍💻 Author
-
-Your Name - HomeFlow
+Valerie Dawson - HomeFlow
 
 ---
 
-**Happy Task Managing! 🏠✨**
