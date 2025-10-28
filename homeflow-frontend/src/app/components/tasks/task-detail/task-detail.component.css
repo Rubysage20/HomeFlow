@@ -1,0 +1,1 @@
+.container { padding: 24px; } .badges { margin: 16px 0; } .task-details { display: flex; gap: 24px; margin: 16px 0; } .task-details div { display: flex; align-items: center; gap: 8px; } .actions { margin-top: 24px; display: flex; gap: 12px; } .spinner { text-align: center; padding: 40px; }

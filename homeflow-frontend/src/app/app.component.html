@@ -1,0 +1,59 @@
+<div class="app-container">
+  <!-- Navigation Bar -->
+  <mat-toolbar *ngIf="isAuthenticated" color="primary" class="navbar">
+    <button mat-icon-button class="menu-button">
+      <mat-icon>menu</mat-icon>
+    </button>
+    
+    <span class="app-title" (click)="navigateTo('/dashboard')">
+      🏠 HomeFlow
+    </span>
+
+    <span class="spacer"></span>
+
+    <button mat-button (click)="navigateTo('/dashboard')">
+      <mat-icon>dashboard</mat-icon>
+      Dashboard
+    </button>
+
+    <button mat-button (click)="navigateTo('/tasks')">
+      <mat-icon>list</mat-icon>
+      Tasks
+    </button>
+
+    <button mat-button (click)="navigateTo('/household')">
+      <mat-icon>people</mat-icon>
+      Household
+    </button>
+
+    <button mat-button (click)="navigateTo('/profile')">
+      <mat-icon>person</mat-icon>
+      Profile
+    </button>
+
+    <button mat-icon-button [matMenuTriggerFor]="userMenu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+
+    <mat-menu #userMenu="matMenu">
+      <div class="user-menu-header">
+        <div class="user-name">{{ currentUser?.name }}</div>
+        <div class="user-email">{{ currentUser?.email }}</div>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="navigateTo('/profile')">
+        <mat-icon>person</mat-icon>
+        <span>Profile</span>
+      </button>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </mat-toolbar>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <router-outlet></router-outlet>
+  </div>
+</div>
