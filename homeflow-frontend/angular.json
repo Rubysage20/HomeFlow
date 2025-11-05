@@ -19,7 +19,7 @@
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
-            "baseHref": "/homeflow/",
+            "baseHref": "/HomeFlow/",
             "assets": [
               "src/favicon.ico",
               "src/assets"
@@ -74,4 +74,5 @@
     }
   }
 }
+
 
