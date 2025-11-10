@@ -1,41 +1,151 @@
 <div class="container">
-  <h1>Household</h1>
-  <div *ngIf="loading" class="spinner"><mat-spinner></mat-spinner></div>
+  <!-- Loading State -->
+  <div *ngIf="loading" class="spinner">
+    <mat-spinner></mat-spinner>
+  </div>
   
+  <!-- No Household State -->
   <div *ngIf="!loading && !hasHousehold" class="empty-state">
+    <mat-icon class="empty-icon">home</mat-icon>
     <h2>No Household Yet</h2>
     <p>Create a household or join an existing one</p>
     <div class="actions">
-      <button mat-raised-button color="primary">Create Household</button>
-      <mat-form-field>
-        <input matInput placeholder="Invite Code" [(ngModel)]="inviteCode">
-      </mat-form-field>
-      <button mat-raised-button (click)="joinHousehold()">Join</button>
+      <button mat-raised-button color="primary" (click)="showCreateForm = !showCreateForm">
+        <mat-icon>add</mat-icon>
+        Create Household
+      </button>
+      <button mat-raised-button color="accent" (click)="showJoinForm = !showJoinForm">
+        <mat-icon>group_add</mat-icon>
+        Join Household
+      </button>
     </div>
+
+    <!-- Create Household Form -->
+    <mat-card *ngIf="showCreateForm" class="form-card">
+      <h3>Create New Household</h3>
+      <form [formGroup]="createForm" (ngSubmit)="onCreateSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Household Name</mat-label>
+          <input matInput formControlName="name" placeholder="e.g., Smith Family" required>
+          <mat-error *ngIf="createForm.get('name')?.hasError('required')">
+            Name is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description (Optional)</mat-label>
+          <textarea matInput formControlName="description" rows="3" placeholder="Tell us about your household..."></textarea>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-raised-button type="button" (click)="showCreateForm = false">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="createForm.invalid || submitting">
+            <mat-spinner *ngIf="submitting" diameter="20" class="spinner-inline"></mat-spinner>
+            <span *ngIf="!submitting">Create</span>
+          </button>
+        </div>
+      </form>
+    </mat-card>
+
+    <!-- Join Household Form -->
+    <mat-card *ngIf="showJoinForm" class="form-card">
+      <h3>Join Existing Household</h3>
+      <form [formGroup]="joinForm" (ngSubmit)="onJoinSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Invite Code</mat-label>
+          <input matInput formControlName="inviteCode" placeholder="Enter 6-character code" required>
+          <mat-hint>Ask your household admin for the invite code</mat-hint>
+          <mat-error *ngIf="joinForm.get('inviteCode')?.hasError('required')">
+            Invite code is required
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-raised-button type="button" (click)="showJoinForm = false">Cancel</button>
+          <button mat-raised-button color="accent" type="submit" [disabled]="joinForm.invalid || submitting">
+            <mat-spinner *ngIf="submitting" diameter="20" class="spinner-inline"></mat-spinner>
+            <span *ngIf="!submitting">Join</span>
+          </button>
+        </div>
+      </form>
+    </mat-card>
   </div>
 
   <div *ngIf="!loading && hasHousehold">
-    <mat-card class="invite-card">
-      <h3>{{ household?.name }}</h3>
-      <div class="invite-code">
-        <strong>Invite Code:</strong> {{ household?.inviteCode }}
-        <button mat-icon-button (click)="copyInviteCode()"><mat-icon>content_copy</mat-icon></button>
+    <!-- Header -->
+    <div class="household-header">
+      <div>
+        <h1>{{ household?.name }} 🏠</h1>
+        <p class="household-description" *ngIf="household?.description">{{ household?.description }}</p>
+        <p class="household-meta" *ngIf="!household?.description">{{ members.length }} members</p>
       </div>
-    </mat-card>
+      <button mat-icon-button (click)="loadHousehold()" matTooltip="Refresh">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
 
-    <h2>Members ({{ members.length }})</h2>
-    <div class="members-grid">
-      <mat-card *ngFor="let member of members" class="member-card">
-        <div class="member-avatar">{{ member.name.charAt(0).toUpperCase() }}</div>
-        <div class="member-info">
-          <h3>{{ member.name }}</h3>
-          <p>{{ member.email }}</p>
-          <div class="member-stats">
-            <span><mat-icon>emoji_events</mat-icon> {{ member.pointsTotal }} pts</span>
-            <span *ngIf="member.role === 'admin'" class="admin-badge">Admin</span>
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <mat-card class="stat-card stat-members">
+        <mat-icon class="stat-icon">people</mat-icon>
+        <div class="stat-number">{{ members.length }}</div>
+        <div class="stat-label">Members</div>
+      </mat-card>
+
+      <mat-card class="stat-card stat-active">
+        <mat-icon class="stat-icon">check_circle</mat-icon>
+        <div class="stat-number">{{ activeMembers }}</div>
+        <div class="stat-label">Active</div>
+      </mat-card>
+
+      <mat-card class="stat-card stat-admin">
+        <mat-icon class="stat-icon">shield</mat-icon>
+        <div class="stat-number">{{ adminCount }}</div>
+        <div class="stat-label">Admins</div>
+      </mat-card>
+
+      <mat-card class="stat-card stat-points">
+        <mat-icon class="stat-icon">emoji_events</mat-icon>
+        <div class="stat-number">{{ totalPoints }}</div>
+        <div class="stat-label">Total Points</div>
+      </mat-card>
+    </div>
+
+    <!-- Invite Card -->
+    <div class="section">
+      <h2 class="section-title">Invite Code</h2>
+      <mat-card class="invite-card">
+        <div class="invite-code">
+          <div class="code-label">
+            <strong>Share this code with others</strong>
+            <span class="code">{{ household?.inviteCode }}</span>
           </div>
+          <button mat-icon-button (click)="copyInviteCode()" matTooltip="Copy invite code">
+            <mat-icon>content_copy</mat-icon>
+          </button>
         </div>
       </mat-card>
     </div>
+
+    <!-- Members Section -->
+    <div class="section">
+      <h2 class="section-title">Members ({{ members.length }})</h2>
+      <div class="members-grid">
+        <mat-card *ngFor="let member of members" class="member-card">
+          <div class="member-avatar">{{ member.name.charAt(0).toUpperCase() }}</div>
+          <div class="member-info">
+            <h3>{{ member.name }}</h3>
+            <p>{{ member.email }}</p>
+            <div class="member-stats">
+              <span><mat-icon>emoji_events</mat-icon> {{ member.pointsTotal }} pts</span>
+              <span><mat-icon>whatshot</mat-icon> {{ member.currentStreak }} day streak</span>
+              <span *ngIf="member.role === 'admin'" class="admin-badge">Admin</span>
+            </div>
+          </div>
+        </mat-card>
+      </div>
+    </div>
   </div>
 </div>
+
+
