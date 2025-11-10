@@ -2,7 +2,7 @@ const Task = require('../models/Task');
 const User = require('../models/User');
 const Household = require('../models/Household');
 const { autoSplitTasks } = require('../utils/taskSplitter');
-const { processRwards } = require ('../utils/taskSplitter');
+const { processRewards } = require ('../utils/taskSplitter');
 
 // @desc    Create new task
 // @route   POST /api/tasks
@@ -330,3 +330,4 @@ exports.swapTask = async (req, res, next) => {
     next(error);
   }
 };
+
