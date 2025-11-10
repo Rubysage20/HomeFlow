@@ -11,6 +11,7 @@ import { TaskDetailComponent } from './components/tasks/task-detail/task-detail.
 import { AddTaskComponent } from './components/tasks/add-task/add-task.component';
 import { HouseholdComponent } from './components/household/household.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { RewardsComponent } from './components/rewards/rewards.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -21,6 +22,7 @@ const routes: Routes = [
   { path: 'tasks/add', component: AddTaskComponent, canActivate: [AuthGuard] },
   { path: 'tasks/:id', component: TaskDetailComponent, canActivate: [AuthGuard] },
   { path: 'household', component: HouseholdComponent, canActivate: [AuthGuard] },
+  { path: 'rewards', component: RewardsComponent, canActivate: [AuthGuard] },	
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/dashboard' }
 ];
