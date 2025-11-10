@@ -112,7 +112,7 @@ export class HouseholdComponent implements OnInit {
           // Update the current user's household
           this.authService.updateCurrentUser({ household: response.data._id });
           
-          this.snackBar.open('🏠 Household created successfully!', 'Close', { duration: 3000 });
+          this.snackBar.open(' Household created successfully!', 'Close', { duration: 3000 });
           this.showCreateForm = false;
           this.createForm.reset();
           
@@ -144,7 +144,7 @@ export class HouseholdComponent implements OnInit {
           // Update the current user's household
           this.authService.updateCurrentUser({ household: response.data._id });
           
-          this.snackBar.open('✨ Successfully joined household!', 'Close', { duration: 3000 });
+          this.snackBar.open(' Successfully joined household!', 'Close', { duration: 3000 });
           this.showJoinForm = false;
           this.joinForm.reset();
           
@@ -164,7 +164,7 @@ export class HouseholdComponent implements OnInit {
   copyInviteCode(): void {
     if (this.household?.inviteCode) {
       navigator.clipboard.writeText(this.household.inviteCode);
-      this.snackBar.open('📋 Invite code copied to clipboard!', 'Close', { duration: 2000 });
+      this.snackBar.open(' Invite code copied to clipboard!', 'Close', { duration: 2000 });
     }
   }
 }
