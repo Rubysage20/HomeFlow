@@ -1,0 +1,329 @@
+.container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.header h1 {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  padding: 24px;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.stat-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 12px;
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.stat-badges {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: white;
+}
+
+.stat-milestones {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  color: white;
+}
+
+.stat-points {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  color: white;
+}
+
+.stat-streak {
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  color: white;
+}
+
+.progress-card {
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.progress-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.progress-text {
+  margin-top: 8px;
+  color: var(--gray-600);
+  font-size: 14px;
+}
+
+.tab-content {
+  padding: 24px 0;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.badge-card {
+  padding: 24px;
+  text-align: center;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.badge-card.earned {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border: 2px solid #F59E0B;
+}
+
+.badge-card.locked {
+  background: var(--gray-100);
+  opacity: 0.7;
+}
+
+.badge-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.badge-icon {
+  font-size: 64px;
+  margin-bottom: 12px;
+}
+
+.locked-icon {
+  opacity: 0.5;
+}
+
+.badge-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.badge-card p {
+  font-size: 14px;
+  color: var(--gray-600);
+  margin-bottom: 12px;
+}
+
+.badge-points {
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 16px;
+}
+
+.badge-date {
+  font-size: 12px;
+  color: var(--gray-500);
+  margin-top: 8px;
+}
+
+.milestones-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.milestone-card {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-radius: 12px;
+}
+
+.milestone-icon {
+  font-size: 48px;
+  flex-shrink: 0;
+}
+
+.milestone-info {
+  flex: 1;
+}
+
+.milestone-info h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.milestone-info p {
+  color: var(--gray-600);
+  font-size: 14px;
+}
+
+.milestone-reward {
+  margin-top: 8px;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.milestone-date {
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.leaderboard-header {
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+  color: white;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.leaderboard-header h3 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.leaderboard-entry {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.leaderboard-entry:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.leaderboard-entry.current-user {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border: 2px solid #F59E0B;
+}
+
+.rank {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  background: var(--gray-200);
+  color: var(--gray-700);
+  flex-shrink: 0;
+}
+
+.rank-gold {
+  background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%);
+  color: white;
+}
+
+.rank-silver {
+  background: linear-gradient(135deg, #E5E7EB 0%, #9CA3AF 100%);
+  color: white;
+}
+
+.rank-bronze {
+  background: linear-gradient(135deg, #FDBA74 0%, #EA580C 100%);
+  color: white;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.user-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.user-stats span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--gray-600);
+}
+
+.user-stats mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-state mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: var(--gray-300);
+  margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .badges-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .milestone-card {
+    flex-direction: column;
+    text-align: center;
+  }
+}

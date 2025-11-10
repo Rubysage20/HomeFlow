@@ -1,0 +1,132 @@
+<div class="container">
+  <div class="header">
+    <h1>🏆 Rewards & Achievements</h1>
+  </div>
+
+  <div *ngIf="loading" class="spinner">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="!loading">
+    <!-- Stats Cards -->
+    <div class="stats-grid" *ngIf="stats">
+      <mat-card class="stat-card stat-badges">
+        <mat-icon class="stat-icon">emoji_events</mat-icon>
+        <div class="stat-number">{{ stats.totalBadges }}</div>
+        <div class="stat-label">Badges Earned</div>
+      </mat-card>
+
+      <mat-card class="stat-card stat-milestones">
+        <mat-icon class="stat-icon">star</mat-icon>
+        <div class="stat-number">{{ stats.totalMilestones }}</div>
+        <div class="stat-label">Milestones</div>
+      </mat-card>
+
+      <mat-card class="stat-card stat-points">
+        <mat-icon class="stat-icon">whatshot</mat-icon>
+        <div class="stat-number">{{ stats.currentPoints }}</div>
+        <div class="stat-label">Total Points</div>
+      </mat-card>
+
+      <mat-card class="stat-card stat-streak">
+        <mat-icon class="stat-icon">local_fire_department</mat-icon>
+        <div class="stat-number">{{ stats.currentStreak }}</div>
+        <div class="stat-label">Day Streak</div>
+      </mat-card>
+    </div>
+
+    <!-- Progress Bar -->
+    <mat-card class="progress-card" *ngIf="stats && stats.nextMilestone">
+      <h3>Next Milestone: {{ stats.nextMilestone.name }} {{ stats.nextMilestone.icon }}</h3>
+      <mat-progress-bar 
+        mode="determinate" 
+        [value]="(stats.currentPoints / stats.nextMilestone.points) * 100">
+      </mat-progress-bar>
+      <p class="progress-text">
+        {{ stats.currentPoints }} / {{ stats.nextMilestone.points }} points
+        ({{ stats.nextMilestone.points - stats.currentPoints }} to go!)
+      </p>
+    </mat-card>
+
+    <!-- Tabs -->
+    <mat-tab-group [(selectedIndex)]="selectedTab">
+      <!-- Earned Badges Tab -->
+      <mat-tab label="Earned Badges">
+        <div class="tab-content">
+          <div *ngIf="earnedBadges.length === 0" class="empty-state">
+            <mat-icon>emoji_events</mat-icon>
+            <p>No badges earned yet. Complete tasks to earn your first badge!</p>
+          </div>
+
+          <div class="badges-grid" *ngIf="earnedBadges.length > 0">
+            <mat-card *ngFor="let reward of earnedBadges" class="badge-card earned">
+              <div class="badge-icon">{{ reward.icon }}</div>
+              <h3>{{ reward.name }}</h3>
+              <p>{{ reward.description }}</p>
+              <div class="badge-points">+{{ reward.pointsAwarded }} pts</div>
+              <div class="badge-date">{{ reward.earnedAt | date:'short' }}</div>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Available Badges Tab -->
+      <mat-tab label="Available Badges">
+        <div class="tab-content">
+          <div class="badges-grid">
+            <mat-card *ngFor="let badge of availableBadges" class="badge-card locked">
+              <div class="badge-icon locked-icon">🔒</div>
+              <h3>{{ badge.name }}</h3>
+              <p>{{ badge.description }}</p>
+              <div class="badge-points">{{ badge.points }} pts</div>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Milestones Tab -->
+      <mat-tab label="Milestones">
+        <div class="tab-content">
+          <div class="milestones-list">
+            <mat-card *ngFor="let milestone of milestones" class="milestone-card">
+              <div class="milestone-icon">{{ milestone.icon }}</div>
+              <div class="milestone-info">
+                <h3>{{ milestone.name }}</h3>
+                <p>{{ milestone.description }}</p>
+                <div class="milestone-reward">Bonus: +{{ milestone.pointsAwarded }} pts</div>
+              </div>
+              <div class="milestone-date">{{ milestone.earnedAt | date:'short' }}</div>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Leaderboard Tab -->
+      <mat-tab label="Leaderboard">
+        <div class="tab-content">
+          <div class="leaderboard-header">
+            <h3>Your Rank: #{{ currentUserRank }}</h3>
+          </div>
+
+          <div class="leaderboard">
+            <mat-card *ngFor="let entry of leaderboard" 
+                      class="leaderboard-entry"
+                      [class.current-user]="entry.userId === authService.currentUserValue?._id">
+              <div class="rank" [ngClass]="getRankClass(entry.rank)">
+                <span class="rank-number">{{ entry.rank }}</span>
+              </div>
+              <div class="user-info">
+                <div class="user-name">{{ entry.name }}</div>
+                <div class="user-stats">
+                  <span><mat-icon>emoji_events</mat-icon> {{ entry.pointsTotal }} pts</span>
+                  <span><mat-icon>whatshot</mat-icon> {{ entry.currentStreak }} streak</span>
+                  <span><mat-icon>military_tech</mat-icon> {{ entry.badgeCount }} badges</span>
+                </div>
+              </div>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>
