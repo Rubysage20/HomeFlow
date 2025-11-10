@@ -26,6 +26,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 // App Components
 import { AppRoutingModule } from './app-routing.module';
@@ -38,6 +39,7 @@ import { TaskDetailComponent } from './components/tasks/task-detail/task-detail.
 import { AddTaskComponent } from './components/tasks/add-task/add-task.component';
 import { HouseholdComponent } from './components/household/household.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { RewardsComponent } from './components/rewards/rewards.component';
 
 // Interceptor
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
@@ -52,7 +54,8 @@ import { JwtInterceptor } from './interceptors/jwt.interceptor';
     TaskDetailComponent,
     AddTaskComponent,
     HouseholdComponent,
-    ProfileComponent
+    ProfileComponent,
+    RewardsComponent
   ],
   imports: [
     BrowserModule,
@@ -81,7 +84,8 @@ import { JwtInterceptor } from './interceptors/jwt.interceptor';
     MatDividerModule,
     MatBadgeModule,
     MatTabsModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatProgressBarModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
