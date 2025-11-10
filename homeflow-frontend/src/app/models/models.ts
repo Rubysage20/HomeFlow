@@ -111,3 +111,49 @@ export interface MemberWorkload {
   availableMinutes: number;
   taskCount: number;
 }
+
+export interface Reward {
+  _id: string;
+  user: string;
+  type: 'badge' | 'achievement' | 'milestone' | 'bonus';
+  name: string;
+  description: string;
+  icon: string;
+  pointsAwarded: number;
+  earnedAt: Date;
+  metadata?: any;
+}
+
+export interface Badge {
+  name: string;
+  description: string;
+  icon: string;
+  points: number;
+}
+
+export interface RewardStats {
+  totalRewards: number;
+  totalBadges: number;
+  totalMilestones: number;
+  totalPointsFromRewards: number;
+  currentPoints: number;
+  currentStreak: number;
+  nextMilestone: any;
+  badgesProgress: {
+    earned: number;
+    total: number;
+    percentage: number;
+  };
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  userId: string;
+  name: string;
+  email: string;
+  pointsTotal: number;
+  currentStreak: number;
+  badgeCount: number;
+  household?: string;
+}
+
