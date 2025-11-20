@@ -22,7 +22,8 @@
             "baseHref": "/HomeFlow/",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/404.html"
             ],
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",
@@ -74,5 +75,6 @@
     }
   }
 }
+
 
 
