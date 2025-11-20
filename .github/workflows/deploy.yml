@@ -5,32 +5,44 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: homeflow-frontend/package-lock.json
         
     - name: Install dependencies
-      run: |
-        cd homeflow-frontend
-        npm install --legacy-peer-deps
+      working-directory: ./homeflow-frontend
+      run: npm ci --legacy-peer-deps
         
     - name: Build Angular app
+      working-directory: ./homeflow-frontend
+      run: npm run build -- --configuration production --base-href /HomeFlow/
+        
+    - name: Debug - List build output
       run: |
-        cd homeflow-frontend
-        npm run build -- --configuration production --base-href /HomeFlow/
+        echo "=== Contents of dist folder ==="
+        find homeflow-frontend/dist -type f
+        echo ""
+        echo "=== Looking for index.html ==="
+        find homeflow-frontend/dist -name "index.html"
         
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./homeflow-frontend/dist/homeflow-frontend/browser
         force_orphan: true
+        enable_jekyll: false
