@@ -12,7 +12,18 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors());
+
+// CORS configuration - Allow GitHub Pages and localhost
+app.use(cors({
+  origin: [
+    'http://localhost:4200',
+    'https://rubysage20.github.io'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
