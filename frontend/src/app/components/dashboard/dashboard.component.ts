@@ -219,12 +219,25 @@ export class DashboardComponent implements OnInit {
       return false;
     }
     
-    // Check if current user is the household creator
-    const creatorId = typeof this.household.creator === 'string' 
-      ? this.household.creator 
-      : this.household.creator._id || this.household.creator.id;
+    // Safely get creator ID
+    let creatorId: string | null = null;
+    if (typeof this.household.creator === 'string') {
+      creatorId = this.household.creator;
+    } else if (this.household.creator && typeof this.household.creator === 'object') {
+      creatorId = (this.household.creator as any)._id || (this.household.creator as any).id;
+    }
     
-    const userId = this.currentUser._id || this.currentUser.id;
+    // Safely get current user ID
+    let userId: string | null = null;
+    if (this.currentUser._id) {
+      userId = this.currentUser._id;
+    } else if (this.currentUser.id) {
+      userId = this.currentUser.id;
+    }
+    
+    if (!creatorId || !userId) {
+      return false;
+    }
     
     return creatorId === userId;
   }
