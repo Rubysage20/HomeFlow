@@ -78,28 +78,34 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
-
   loadHouseholdData(householdId: string): void {
     this.householdService.getHousehold(householdId).subscribe({
       next: (response) => {
         this.household = response.household;
-        this.householdMembers = response.household.members.map(m => m.user);
+        
+        // Safely build leaderboard
+        if (this.household && this.household.members && Array.isArray(this.household.members)) {
+          this.leaderboard = this.household.members
+            .map(member => member.user)
+            .filter(user => user != null) // Filter out null/undefined users
+            .sort((a, b) => (b.points || 0) - (a.points || 0));
+          
+          this.householdMembers = this.household.members
+            .map(m => m.user)
+            .filter(user => user != null); // Filter out null/undefined users
+        } else {
+          this.leaderboard = [];
+          this.householdMembers = [];
+        }
       },
       error: (error) => {
         console.error('Error loading household:', error);
-      }
-    });
-
-    this.householdService.getLeaderboard(householdId).subscribe({
-      next: (response) => {
-        this.leaderboard = response.leaderboard.slice(0, 5);
-      },
-      error: (error) => {
-        console.error('Error loading leaderboard:', error);
+        // Don't fail - just set empty arrays
+        this.leaderboard = [];
+        this.householdMembers = [];
       }
     });
   }
-
   openCreateTaskDialog(): void {
     this.showCreateTask = true;
     this.editingTask = null;
