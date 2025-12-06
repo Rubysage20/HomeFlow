@@ -12,6 +12,7 @@ router.use(protect);
 
 router.post('/', createHousehold);
 router.get('/:id', getHousehold);
+router.get('/:id/leaderboard', getHousehold);
 router.post('/join', joinHousehold);
 
 module.exports = router;

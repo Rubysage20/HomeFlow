@@ -214,7 +214,13 @@ export class DashboardComponent implements OnInit {
       });
     }
   }
-  isHouseholdAdmin(): boolean {
+ isHouseholdAdmin(): boolean {
+    // Check user's role field directly
+    if (this.currentUser && (this.currentUser as any).role === 'admin') {
+      return true;
+    }
+
+    // Fallback: check if current user is the household creator
     if (!this.household || !this.currentUser) {
       return false;
     }
@@ -228,13 +234,12 @@ export class DashboardComponent implements OnInit {
     }
     
     // Safely get current user ID
-    let userId: string | null = null;
-    if (this.currentUser._id) {
-      userId = this.currentUser._id;
+      let userId: string | null = null;
+    if ((this.currentUser as any)._id) {
+      userId = (this.currentUser as any)._id;
     } else if (this.currentUser.id) {
       userId = this.currentUser.id;
     }
-    
     if (!creatorId || !userId) {
       return false;
     }
