@@ -19,7 +19,8 @@ export interface Badge {
 export interface Household {
   _id: string;
   name: string;
-  owner: User;
+  description?: string;
+  creator: string | User;
   members: HouseholdMember[];
   inviteCode: string;
   createdAt: Date;

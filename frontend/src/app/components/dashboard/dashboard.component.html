@@ -56,14 +56,18 @@
         <mat-card class="section-card">
           <mat-card-header>
             <mat-card-title>Your Tasks</mat-card-title>
-            <button mat-raised-button color="accent" class="create-task-btn" (click)="openCreateTaskDialog()">
+            <button mat-raised-button color="accent" class="create-task-btn" 
+                    *ngIf="isHouseholdAdmin()"
+                    (click)="openCreateTaskDialog()">
               <mat-icon>add</mat-icon> Create Task
             </button>
           </mat-card-header>
           <mat-card-content>
             <div *ngIf="getTasksByStatus('pending').length === 0" class="empty-state">
               <p>🎉 No pending tasks! You're all caught up!</p>
-              <button mat-raised-button color="primary" (click)="openCreateTaskDialog()">
+              <button mat-raised-button color="primary" 
+                      *ngIf="isHouseholdAdmin()"
+                      (click)="openCreateTaskDialog()">
                 Create Your First Task
               </button>
             </div>
@@ -93,10 +97,14 @@
                 <button mat-raised-button color="primary" (click)="completeTask(task._id)">
                   Mark Complete
                 </button>
-                <button mat-button color="accent" (click)="openEditTaskDialog(task)">
+                <button mat-button color="accent" 
+                        *ngIf="isHouseholdAdmin()"
+                        (click)="openEditTaskDialog(task)">
                   <mat-icon>edit</mat-icon> Edit
                 </button>
-                <button mat-button color="warn" (click)="deleteTask(task._id)">
+                <button mat-button color="warn" 
+                        *ngIf="isHouseholdAdmin()"
+                        (click)="deleteTask(task._id)">
                   <mat-icon>delete</mat-icon> Delete
                 </button>
               </div>

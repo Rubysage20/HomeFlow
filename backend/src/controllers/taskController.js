@@ -26,7 +26,7 @@ const autoAssignTask = async (householdId) => {
 
 // @desc    Create new task
 // @route   POST /api/tasks
-// @access  Private
+// @access  Private (admin only)
 exports.createTask = async (req, res) => {
   try {
     const { title, description, category, priority, points, dueDate, assignedTo } = req.body;
@@ -37,6 +37,16 @@ exports.createTask = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'You must be part of a household to create tasks'
+      });
+    }
+    // Check is the user is household admin/head
+    const household = await Household.findById(user.household);
+    const member = household.members.find(m => m.user.toString() === req.user.id);
+    
+    if (!member || member.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the household head can create tasks'
       });
     }
 

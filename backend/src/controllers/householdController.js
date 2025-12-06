@@ -1,31 +1,39 @@
 const Household = require('../models/Household');
 const User = require('../models/User');
+const crypto = require('crypto');
 
-// @desc    Create new household
+// @desc    Create household
 // @route   POST /api/households
 // @access  Private
 exports.createHousehold = async (req, res) => {
   try {
-    const { name } = req.body;
-    
-    // Create household
+    const { name, description } = req.body;
+
+    // Generate unique invite code
+    const inviteCode = crypto.randomBytes(4).toString('hex').toUpperCase();
+
     const household = await Household.create({
       name,
-      createdBy: req.user.id,
+      description,
+      creator: req.user.id,
+      inviteCode,
       members: [{
         user: req.user.id,
         role: 'admin'
       }]
     });
 
-    // Update user's household
+    // Update user's household reference
     await User.findByIdAndUpdate(req.user.id, {
       household: household._id
     });
 
+    const populatedHousehold = await Household.findById(household._id)
+      .populate('members.user', 'name email points streakDays');
+
     res.status(201).json({
       success: true,
-      household
+      household: populatedHousehold
     });
   } catch (error) {
     console.error('Create household error:', error);
@@ -43,8 +51,8 @@ exports.createHousehold = async (req, res) => {
 exports.getHousehold = async (req, res) => {
   try {
     const household = await Household.findById(req.params.id)
-      .populate('members.user', 'name email points level');
-    
+      .populate('members.user', 'name email points streakDays badges');
+
     if (!household) {
       return res.status(404).json({
         success: false,
@@ -72,9 +80,9 @@ exports.getHousehold = async (req, res) => {
 exports.joinHousehold = async (req, res) => {
   try {
     const { inviteCode } = req.body;
-    
+
     const household = await Household.findOne({ inviteCode });
-    
+
     if (!household) {
       return res.status(404).json({
         success: false,
@@ -86,7 +94,7 @@ exports.joinHousehold = async (req, res) => {
     const isMember = household.members.some(
       member => member.user.toString() === req.user.id
     );
-    
+
     if (isMember) {
       return res.status(400).json({
         success: false,
@@ -94,22 +102,24 @@ exports.joinHousehold = async (req, res) => {
       });
     }
 
-    // Add user to household
+    // Add user to household as regular member
     household.members.push({
       user: req.user.id,
       role: 'member'
     });
     await household.save();
 
-    // Update user's household
+    // Update user's household reference
     await User.findByIdAndUpdate(req.user.id, {
       household: household._id
     });
 
+    const populatedHousehold = await Household.findById(household._id)
+      .populate('members.user', 'name email points streakDays');
+
     res.json({
       success: true,
-      message: 'Successfully joined household',
-      household
+      household: populatedHousehold
     });
   } catch (error) {
     console.error('Join household error:', error);
@@ -121,39 +131,8 @@ exports.joinHousehold = async (req, res) => {
   }
 };
 
-// @desc    Get household leaderboard
-// @route   GET /api/households/:id/leaderboard
-// @access  Private
-exports.getLeaderboard = async (req, res) => {
-  try {
-    const household = await Household.findById(req.params.id)
-      .populate({
-        path: 'members.user',
-        select: 'name points level badges'
-      });
-    
-    if (!household) {
-      return res.status(404).json({
-        success: false,
-        message: 'Household not found'
-      });
-    }
-
-    // Sort members by points
-    const leaderboard = household.members
-      .map(member => member.user)
-      .sort((a, b) => b.points - a.points);
-
-    res.json({
-      success: true,
-      leaderboard
-    });
-  } catch (error) {
-    console.error('Get leaderboard error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching leaderboard',
-      error: error.message
-    });
-  }
+module.exports = {
+  createHousehold: exports.createHousehold,
+  getHousehold: exports.getHousehold,
+  joinHousehold: exports.joinHousehold
 };

@@ -214,6 +214,20 @@ export class DashboardComponent implements OnInit {
       });
     }
   }
+  isHouseholdAdmin(): boolean {
+    if (!this.household || !this.currentUser) {
+      return false;
+    }
+    
+    // Check if current user is the household creator
+    const creatorId = typeof this.household.creator === 'string' 
+      ? this.household.creator 
+      : this.household.creator._id || this.household.creator.id;
+    
+    const userId = this.currentUser._id || this.currentUser.id;
+    
+    return creatorId === userId;
+  }
 
  completeTask(taskId: string): void {
     this.taskService.completeTask(taskId).subscribe({
