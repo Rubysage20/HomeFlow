@@ -1,16 +1,17 @@
 const express = require('express');
 const router = express.Router();
+const { protect } = require('../middleware/auth');
 const {
   createHousehold,
   getHousehold,
-  joinHousehold,
-  getLeaderboard
+  joinHousehold
 } = require('../controllers/householdController');
-const { protect } = require('../middleware/auth');
 
-router.post('/', protect, createHousehold);
-router.post('/join', protect, joinHousehold);
-router.get('/:id', protect, getHousehold);
-router.get('/:id/leaderboard', protect, getLeaderboard);
+// All routes require authentication
+router.use(protect);
+
+router.post('/', createHousehold);
+router.get('/:id', getHousehold);
+router.post('/join', joinHousehold);
 
 module.exports = router;
