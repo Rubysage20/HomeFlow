@@ -5,7 +5,7 @@ const crypto = require('crypto');
 // @desc    Create household
 // @route   POST /api/households
 // @access  Private
-exports.createHousehold = async (req, res) => {
+const createHousehold = async (req, res) => {
   try {
     const { name, description } = req.body;
 
@@ -48,7 +48,7 @@ exports.createHousehold = async (req, res) => {
 // @desc    Get household details
 // @route   GET /api/households/:id
 // @access  Private
-exports.getHousehold = async (req, res) => {
+const getHousehold = async (req, res) => {
   try {
     const household = await Household.findById(req.params.id)
       .populate('members.user', 'name email points streakDays badges');
@@ -77,7 +77,7 @@ exports.getHousehold = async (req, res) => {
 // @desc    Join household with invite code
 // @route   POST /api/households/join
 // @access  Private
-exports.joinHousehold = async (req, res) => {
+const joinHousehold = async (req, res) => {
   try {
     const { inviteCode } = req.body;
 
@@ -132,7 +132,7 @@ exports.joinHousehold = async (req, res) => {
 };
 
 module.exports = {
-  createHousehold: exports.createHousehold,
-  getHousehold: exports.getHousehold,
-  joinHousehold: exports.joinHousehold
+  createHousehold,
+  getHousehold,
+  joinHousehold
 };
