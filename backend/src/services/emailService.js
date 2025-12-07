@@ -1,122 +1,174 @@
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 
-// Email configuration
-const transporter = nodemailer.createTransport({
-  service: 'gmail', // You can use Gmail, SendGrid, or any SMTP service
-  auth: {
-    user: process.env.EMAIL_USER, // Your email
-    pass: process.env.EMAIL_PASSWORD // Your email password or app password
-  }
-});
+// Initialize SendGrid
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
-// Send password reset email
-const sendPasswordResetEmail = async (email, resetToken, userName) => {
-  const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-  
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: 'Password Reset - HomeFlow',
-    html: `
-      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #667eea;">Password Reset Request</h2>
-        <p>Hi ${userName},</p>
-        <p>You requested to reset your password. Click the button below to reset it:</p>
-        <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0;">Reset Password</a>
-        <p>Or copy and paste this link:</p>
-        <p style="color: #666;">${resetUrl}</p>
-        <p>This link will expire in 1 hour.</p>
-        <p>If you didn't request this, please ignore this email.</p>
-        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-        <p style="color: #999; font-size: 12px;">HomeFlow - Smart Household Management</p>
-      </div>
-    `
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log('Password reset email sent to:', email);
-  } catch (error) {
-    console.error('Error sending password reset email:', error);
-    throw error;
-  }
-};
+const FROM_EMAIL = process.env.FROM_EMAIL || 'homeschoolmoore3@gmail.com';
+const FROM_NAME = 'HomeFlow';
 
 // Send task assignment email
-const sendTaskAssignmentEmail = async (userEmail, userName, task) => {
-  const taskUrl = `${process.env.FRONTEND_URL}/dashboard`;
-  
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: userEmail,
-    subject: `New Task Assigned: ${task.title} - HomeFlow`,
+const sendTaskAssignmentEmail = async (toEmail, toName, task) => {
+  if (!process.env.SENDGRID_API_KEY) {
+    console.log('SendGrid not configured - skipping email');
+    return;
+  }
+
+  const msg = {
+    to: toEmail,
+    from: {
+      email: FROM_EMAIL,
+      name: FROM_NAME
+    },
+    subject: '✅ New Task Assigned to You!',
     html: `
-      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #667eea;">🏠 New Task Assigned!</h2>
-        <p>Hi ${userName},</p>
-        <p>You've been assigned a new task:</p>
-        
-        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3 style="margin: 0 0 10px 0; color: #333;">${task.title}</h3>
-          ${task.description ? `<p style="margin: 10px 0; color: #666;">${task.description}</p>` : ''}
-          <p style="margin: 10px 0;">
-            <strong>Priority:</strong> <span style="color: ${getPriorityColor(task.priority)}; text-transform: capitalize;">${task.priority}</span>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
+        <div style="background: white; padding: 30px; border-radius: 8px;">
+          <h1 style="color: #667eea; margin-top: 0;">🎯 New Task Assigned!</h1>
+          
+          <p style="font-size: 16px; color: #333;">Hi ${toName},</p>
+          
+          <p style="font-size: 16px; color: #333;">You've been assigned a new task:</p>
+          
+          <div style="background: #f7f7f7; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0;">
+            <h2 style="margin-top: 0; color: #333;">${task.title}</h2>
+            ${task.description ? `<p style="color: #666;">${task.description}</p>` : ''}
+            <p style="margin: 10px 0;">
+              <strong>Category:</strong> ${task.category}<br>
+              <strong>Priority:</strong> <span style="color: ${getPriorityColor(task.priority)};">${task.priority}</span><br>
+              <strong>Points:</strong> 🏆 ${task.points}
+            </p>
+          </div>
+          
+          <a href="${process.env.FRONTEND_URL}" 
+             style="display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px;">
+            View Task
+          </a>
+          
+          <p style="color: #999; font-size: 14px; margin-top: 30px;">
+            Complete this task to earn ${task.points} points! 🎉
           </p>
-          <p style="margin: 10px 0;">
-            <strong>Category:</strong> ${task.category}
-          </p>
-          <p style="margin: 10px 0;">
-            <strong>Points:</strong> ${task.points} pts
-          </p>
-          ${task.dueDate ? `<p style="margin: 10px 0;"><strong>Due:</strong> ${new Date(task.dueDate).toLocaleDateString()}</p>` : ''}
         </div>
-        
-        <a href="${taskUrl}" style="display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0;">View Task</a>
-        
-        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-        <p style="color: #999; font-size: 12px;">HomeFlow - Smart Household Management</p>
       </div>
     `
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log('Task assignment email sent to:', userEmail);
+    await sgMail.send(msg);
+    console.log(`✅ Task assignment email sent to ${toEmail}`);
   } catch (error) {
     console.error('Error sending task assignment email:', error);
-    // Don't throw - we don't want to fail task creation if email fails
+    if (error.response) {
+      console.error('SendGrid error:', error.response.body);
+    }
   }
 };
 
-// Send task completion notification
-const sendTaskCompletionEmail = async (userEmail, userName, task, completedByName) => {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: userEmail,
-    subject: `Task Completed: ${task.title} - HomeFlow`,
+// Send task completion email
+const sendTaskCompletionEmail = async (toEmail, toName, task, completedByName) => {
+  if (!process.env.SENDGRID_API_KEY) {
+    console.log('SendGrid not configured - skipping email');
+    return;
+  }
+
+  const msg = {
+    to: toEmail,
+    from: {
+      email: FROM_EMAIL,
+      name: FROM_NAME
+    },
+    subject: '🎉 Task Completed!',
     html: `
-      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #4caf50;">✅ Task Completed!</h2>
-        <p>Hi ${userName},</p>
-        <p><strong>${completedByName}</strong> has completed the task:</p>
-        
-        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3 style="margin: 0 0 10px 0; color: #333;">${task.title}</h3>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 10px;">
+        <div style="background: white; padding: 30px; border-radius: 8px;">
+          <h1 style="color: #11998e; margin-top: 0;">✨ Task Completed!</h1>
+          
+          <p style="font-size: 16px; color: #333;">Hi ${toName},</p>
+          
+          <p style="font-size: 16px; color: #333;">Great news! <strong>${completedByName}</strong> just completed a task:</p>
+          
+          <div style="background: #f0fdf4; padding: 20px; border-left: 4px solid #11998e; margin: 20px 0;">
+            <h2 style="margin-top: 0; color: #333;">✅ ${task.title}</h2>
+            ${task.description ? `<p style="color: #666;">${task.description}</p>` : ''}
+            <p style="margin: 10px 0;">
+              <strong>Points Earned:</strong> 🏆 ${task.points}<br>
+              <strong>Completed by:</strong> ${completedByName}
+            </p>
+          </div>
+          
+          <a href="${process.env.FRONTEND_URL}" 
+             style="display: inline-block; background: #11998e; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px;">
+            View Dashboard
+          </a>
+          
+          <p style="color: #999; font-size: 14px; margin-top: 30px;">
+            Keep up the great work! 🚀
+          </p>
         </div>
-        
-        <p>Great teamwork! 🎉</p>
-        
-        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-        <p style="color: #999; font-size: 12px;">HomeFlow - Smart Household Management</p>
       </div>
     `
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log('Task completion email sent to:', userEmail);
+    await sgMail.send(msg);
+    console.log(`✅ Task completion email sent to ${toEmail}`);
   } catch (error) {
     console.error('Error sending task completion email:', error);
+    if (error.response) {
+      console.error('SendGrid error:', error.response.body);
+    }
+  }
+};
+
+// Send password reset email
+const sendPasswordResetEmail = async (toEmail, toName, resetToken) => {
+  if (!process.env.SENDGRID_API_KEY) {
+    console.log('SendGrid not configured - skipping email');
+    return;
+  }
+
+  const resetUrl = `${process.env.FRONTEND_URL}/#/reset-password?token=${resetToken}`;
+
+  const msg = {
+    to: toEmail,
+    from: {
+      email: FROM_EMAIL,
+      name: FROM_NAME
+    },
+    subject: '🔐 Reset Your Password',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
+        <div style="background: white; padding: 30px; border-radius: 8px;">
+          <h1 style="color: #667eea; margin-top: 0;">🔑 Password Reset Request</h1>
+          
+          <p style="font-size: 16px; color: #333;">Hi ${toName},</p>
+          
+          <p style="font-size: 16px; color: #333;">You requested to reset your password. Click the button below to create a new password:</p>
+          
+          <a href="${resetUrl}" 
+             style="display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0;">
+            Reset Password
+          </a>
+          
+          <p style="color: #666; font-size: 14px;">This link will expire in 1 hour.</p>
+          
+          <p style="color: #999; font-size: 14px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+            If you didn't request this, please ignore this email.
+          </p>
+        </div>
+      </div>
+    `
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log(`✅ Password reset email sent to ${toEmail}`);
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    if (error.response) {
+      console.error('SendGrid error:', error.response.body);
+    }
   }
 };
 
@@ -131,7 +183,7 @@ const getPriorityColor = (priority) => {
 };
 
 module.exports = {
-  sendPasswordResetEmail,
   sendTaskAssignmentEmail,
-  sendTaskCompletionEmail
+  sendTaskCompletionEmail,
+  sendPasswordResetEmail
 };
