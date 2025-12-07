@@ -6,8 +6,37 @@
   min-height: 100vh;
 }
 
+/* Dashboard Header */
 .dashboard-header {
-  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+}
+
+.header-left h1 {
+  margin: 0 0 5px 0;
+  font-size: 28px;
+}
+
+.subtitle {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 14px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.header-actions button {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .dashboard-header h1 {
@@ -648,5 +677,59 @@ mat-card-header {
   font-size: 14px;
   color: #666;
   margin: 5px 0;
+}
+/* Leaderboard Avatars */
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  transition: all 0.2s;
+}
+
+.leaderboard-item:hover {
+  background: #e9ecef;
+  transform: translateX(5px);
+}
+
+.member-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background-size: cover;
+  background-position: center;
+  margin-right: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.rank {
+  margin-right: 15px;
+  min-width: 35px;
+  text-align: center;
+}
+
+.member-info {
+  flex: 1;
+}
+
+.member-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 3px;
+}
+
+.member-points {
+  font-size: 14px;
+  color: #666;
+}
+
+.member-streak {
+  font-size: 18px;
 }
 }

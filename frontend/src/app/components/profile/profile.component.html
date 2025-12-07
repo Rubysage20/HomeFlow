@@ -1,0 +1,146 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>My Profile</h1>
+    <button mat-raised-button color="primary" (click)="toggleEdit()" *ngIf="!isEditing">
+      <mat-icon>edit</mat-icon> Edit Profile
+    </button>
+  </div>
+
+  <div class="profile-content" *ngIf="currentUser">
+    
+    <!-- View Mode -->
+    <div *ngIf="!isEditing" class="profile-view">
+      <mat-card class="profile-card">
+        <div class="profile-main">
+          <div class="avatar-section">
+            <div class="avatar-large" 
+                 [style.background-color]="currentUser.favoriteColor"
+                 [style.background-image]="isImageAvatar() ? 'url(' + selectedAvatar + ')' : 'none'">
+              <span *ngIf="!isImageAvatar()">{{ getAvatarDisplay() }}</span>
+            </div>
+          </div>
+
+          <div class="profile-info">
+            <h2>{{ currentUser.name }}</h2>
+            <p class="bio" *ngIf="currentUser.bio">{{ currentUser.bio }}</p>
+            <p class="bio empty" *ngIf="!currentUser.bio">No bio yet. Click "Edit Profile" to add one!</p>
+            
+            <div class="profile-meta">
+              <div class="meta-item">
+                <mat-icon>email</mat-icon>
+                <span>{{ currentUser.email }}</span>
+              </div>
+              <div class="meta-item">
+                <mat-icon>palette</mat-icon>
+                <span>Favorite Color: 
+                  <span class="color-dot" [style.background-color]="currentUser.favoriteColor"></span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="profile-stats">
+          <div class="stat-box">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-value">{{ currentUser.points }}</div>
+            <div class="stat-label">Total Points</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value">{{ currentUser.level }}</div>
+            <div class="stat-label">Level</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-value">{{ currentUser.streakDays }}</div>
+            <div class="stat-label">Day Streak</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-icon">🏅</div>
+            <div class="stat-value">{{ currentUser.badges?.length || 0 }}</div>
+            <div class="stat-label">Badges</div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Edit Mode -->
+    <div *ngIf="isEditing" class="profile-edit">
+      <mat-card class="edit-card">
+        <h2>Edit Profile</h2>
+        
+        <form class="edit-form">
+          <!-- Avatar Selection -->
+          <div class="form-section">
+            <h3>Avatar</h3>
+            <div class="avatar-edit-section">
+              <div class="avatar-preview" 
+                   [style.background-color]="editForm.favoriteColor"
+                   [style.background-image]="isImageAvatar() ? 'url(' + selectedAvatar + ')' : 'none'">
+                <span *ngIf="!isImageAvatar()">{{ getAvatarDisplay() }}</span>
+              </div>
+              <div class="avatar-options">
+                <button mat-raised-button type="button" (click)="toggleAvatarPicker()">
+                  Choose Emoji
+                </button>
+                <button mat-raised-button type="button" (click)="fileInput.click()">
+                  Upload Image
+                </button>
+                <input #fileInput type="file" accept="image/*" (change)="handleFileUpload($event)" class="hidden-input">
+            </div>
+
+            <!-- Avatar Picker -->
+            <div *ngIf="showAvatarPicker" class="avatar-picker">
+              <div class="avatar-grid">
+                <div *ngFor="let avatar of avatarOptions" 
+                     class="avatar-option"
+                     [class.selected]="selectedAvatar === avatar"
+                     (click)="selectAvatar(avatar)">
+                  {{ avatar }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Name -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Name</mat-label>
+            <input matInput [(ngModel)]="editForm.name" name="name" required>
+          </mat-form-field>
+
+          <!-- Bio -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Bio</mat-label>
+            <textarea matInput [(ngModel)]="editForm.bio" name="bio" rows="3" maxlength="200" 
+                      placeholder="Tell us about yourself..."></textarea>
+            <mat-hint-align="end">{{ editForm.bio?.length || 0 }}/200</mat-hint>
+          </mat-form-field>
+
+          <!-- Favorite Color -->
+          <div class="form-section">
+            <h3>Favorite Color</h3>
+            <div class="color-picker">
+              <div *ngFor="let color of colorOptions" 
+                   class="color-option"
+                   [class.selected]="editForm.favoriteColor === color.value"
+                   [style.background-color]="color.value"
+                   (click)="editForm.favoriteColor = color.value">
+                <mat-icon *ngIf="editForm.favoriteColor === color.value">check</mat-icon>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="form-actions">
+            <button mat-button type="button" (click)="cancelEdit()">Cancel</button>
+            <button mat-raised-button color="primary" type="button" (click)="saveProfile()">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </mat-card>
+    </div>
+  </div>
+</div>

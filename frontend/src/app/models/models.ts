@@ -3,7 +3,7 @@ export interface User {
   _id?: string;
   name: string;
   email: string;
-  role?: string;  // ADD THIS if missing
+  role?: string;  
   household?: string;
   points: number;
   level: number;
@@ -13,8 +13,12 @@ export interface User {
     earnedAt: Date;
   }>;
   streakDays: number;
-  weeklyPoints?: number;  // ADD THIS
-  totalLifetimePoints?: number;  // ADD THIS
+  weeklyPoints?: number;  
+  totalLifetimePoints?: number;  
+  avatar?:string;
+  bio?: string;
+  favoriteColor?: string;
+  theme?:string;
   createdAt: Date;
 }
 

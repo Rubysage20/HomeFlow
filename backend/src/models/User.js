@@ -25,6 +25,29 @@ const userSchema = new mongoose.Schema({
     enum: ['admin', 'member'],
     default: 'member'
   },
+  avatar: {
+    type: String,
+    default: ''
+  },
+  bio: {
+    type: String,
+    maxlength: 300,
+    default: ''
+  },
+  favoriteColor: {
+    type: String,
+    maxlength: 200,
+    default: '#667eea'
+  },
+  theme: {
+    type: String,
+    enum: ['light', 'dark'],
+    default: 'light'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
   household: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Household'

@@ -2,7 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
-
+const authRoutes = require('./routes/authRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const householdRoutes = require('./routes/householdRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 // Load environment variables
 dotenv.config();
 
@@ -33,6 +37,7 @@ app.use('/api/households', require('./routes/householdRoutes'));
 app.use('/api/tasks', require('./routes/taskRoutes'));
 app.use('/api/password', require('./routes/passwordRoutes'));
 app.use('/api/announcements', require('./routes/announcementRoutes'));
+app.use('/api/profile', require('./routes/profileRoutes'));
 
 // Health check
 app.get('/api/health', (req, res) => {
