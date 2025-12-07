@@ -34,9 +34,10 @@ import { ProfileComponent } from './components/profile/profile.component';
     LoginComponent,
     RegisterComponent,
     DashboardComponent,
+    ProfileComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
-    ProfileComponent
+    
   ],
   imports: [
     BrowserModule,

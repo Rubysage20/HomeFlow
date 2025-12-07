@@ -90,6 +90,7 @@
                 </button>
                 <input #fileInput type="file" accept="image/*" (change)="handleFileUpload($event)" class="hidden-input">
             </div>
+            </div>
 
             <!-- Avatar Picker -->
             <div *ngIf="showAvatarPicker" class="avatar-picker">
@@ -115,7 +116,7 @@
             <mat-label>Bio</mat-label>
             <textarea matInput [(ngModel)]="editForm.bio" name="bio" rows="3" maxlength="200" 
                       placeholder="Tell us about yourself..."></textarea>
-            <mat-hint-align="end">{{ editForm.bio?.length || 0 }}/200</mat-hint>
+            <mat-hint align="end">{{ editForm.bio?.length || 0 }}/200</mat-hint>
           </mat-form-field>
 
           <!-- Favorite Color -->
