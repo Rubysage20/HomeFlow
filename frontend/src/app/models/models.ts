@@ -3,11 +3,18 @@ export interface User {
   _id?: string;
   name: string;
   email: string;
+  role?: string;  // ADD THIS if missing
   household?: string;
   points: number;
-  badges: Badge[];
+  level: number;
+  badges: Array<{
+    name: string;
+    icon: string;
+    earnedAt: Date;
+  }>;
   streakDays: number;
-  lastTaskCompletedDate?: Date;
+  weeklyPoints?: number;  // ADD THIS
+  totalLifetimePoints?: number;  // ADD THIS
   createdAt: Date;
 }
 
@@ -52,6 +59,27 @@ export interface Task {
   completedBy?: User;
   createdAt: Date;
 }
+export interface TaskCompletionResponse {
+  success: boolean;
+  task: Task;
+  pointsEarned: number;
+  newLevel: number;
+  newPoints: number;
+  weeklyPoints: number;
+  totalLifetimePoints: number;
+  currentReward: number;
+  nextReward: {
+    pointsNeeded: number;
+    rewardAmount: number;
+    currentPoints: number;
+  } | null;
+  streakDays: number;
+  newBadges?: Array<{
+    name: string;
+    icon: string;
+    description: string;
+  }>;
+}
 
 export interface AuthResponse {
   success: boolean;
@@ -63,15 +91,4 @@ export interface ApiResponse<T> {
   success: boolean;
   message?: string;
   data?: T;
-}
-
-export interface TaskCompletionResponse {
-  success: boolean;
-  task: Task;
-  pointsEarned: number;
-  newTotalPoints?: number;
-  newPoints?: number;
-  newLevel?: number;
-  streakDays?: number;
-  newBadges?: Badge[];
 }

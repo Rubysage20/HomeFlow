@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Household = require('../models/Household');
 const {sendTaskAssignmentEmail, sendTaskCompletionEmail} = require('../services/emailService');
 const { calculateReward, getNextReward, shouldResetWeekly } = require('../utils/rewardSystem');
+const { checkAndAwardBadges } = require('../utils/badgeSystem');
 
 // Auto-assign algorithm - assigns task to member with lowest points
 const autoAssignTask = async (householdId) => {
@@ -295,6 +296,18 @@ exports.completeTask = async (req, res) => {
     assignedUser.lastActiveDate = today;
     await assignedUser.save();
 
+    // Check and award badges
+     const Task = require('../models/Task');
+    const completedTasksCount = await Task.countDocuments({
+      assignedTo: assignedUser._id,
+      status: 'completed'
+    });
+    
+    const newBadges = await checkAndAwardBadges(assignedUser, completedTasksCount);
+    if (newBadges.length > 0) {
+      await assignedUser.save(); // Save again with new badges
+    }
+
     // Calculate reward info
     const currentReward = calculateReward(assignedUser.weeklyPoints);
     const nextReward = getNextReward(assignedUser.weeklyPoints);
@@ -336,7 +349,9 @@ exports.completeTask = async (req, res) => {
       totalLifetimePoints: assignedUser.totalLifetimePoints,
       currentReward,
       nextReward,
-      streakDays: assignedUser.streakDays
+      streakDays: assignedUser.streakDays,
+      newBadges: newBadges
+
     });
   } catch (error) {
     console.error('Complete task error:', error);
