@@ -20,6 +20,11 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     select: false
   },
+   role: {                              
+    type: String,
+    enum: ['admin', 'member'],
+    default: 'member'
+  },
   household: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Household'
