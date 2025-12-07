@@ -111,6 +111,51 @@
             </div>
           </mat-card-content>
         </mat-card>
+          <mat-card class="section-card" style="margin-top: 20px;">
+          <mat-card-header>
+            <mat-card-title>Completed Tasks ({{ getTasksByStatus('completed').length }})</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div *ngIf="getTasksByStatus('completed').length === 0" class="empty-state">
+              <p>No completed tasks yet. Start completing tasks to see them here!</p>
+            </div>
+            <!-- Completed Task-->
+            <div *ngFor="let task of getTasksByStatus('completed')" class="task-item completed-task">
+              <div class="task-header">
+                <div class="task-title-row">
+                  <span class="task-priority-dot" 
+                        [style.background-color]="getPriorityColor(task.priority)"></span>
+                  <h3>{{ task.title }}</h3>
+                  <span style="margin-left: 10px; color: #4caf50; font-weight: bold;">✓ Completed</span>
+                </div>
+                <span class="task-points" style="color: #4caf50;">+{{ task.points }} pts</span>
+              </div>
+              
+              <p class="task-description" *ngIf="task.description">
+                {{ task.description }}
+              </p>
+              
+              <div class="task-footer">
+                <mat-chip class="category-chip">{{ task.category }}</mat-chip>
+                
+                <!-- Show who it was assigned to -->
+                <span class="task-assigned" *ngIf="task.assignedTo">
+                  Assigned to: {{ task.assignedTo.name }}
+                </span>
+                
+                <!-- Show who completed it -->
+                <span class="task-completed-by" *ngIf="task.completedBy" style="margin-left: 15px; color: #666;">
+                  <strong>Completed by:</strong> {{ task.completedBy.name }}
+                </span>
+                
+                <!-- Show when it was completed -->
+                <span *ngIf="task.completedAt" style="margin-left: 15px; color: #666; font-size: 14px;">
+                  <strong>Completed:</strong> {{ task.completedAt | date:'short' }}
+                </span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
       </div>
 
       <!-- Sidebar -->

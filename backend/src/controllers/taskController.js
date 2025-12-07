@@ -118,16 +118,17 @@ exports.getTasks = async (req, res) => {
     const user = await User.findById(req.user.id);
     
     if (!user.household) {
-      return res.json({
-        success: true,
-        tasks: []
+      return res.status(400).json({
+        success: false,
+        message: 'You must be part of a household to view tasks'
       });
     }
 
     const tasks = await Task.find({ household: user.household })
       .populate('assignedTo', 'name email')
       .populate('createdBy', 'name email')
-      .sort('-createdAt');
+      .populate('completedBy', 'name email')  
+      .sort({ createdAt: -1 });
 
     res.json({
       success: true,
