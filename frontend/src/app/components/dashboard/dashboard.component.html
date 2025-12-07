@@ -1,10 +1,10 @@
 <div class="dashboard-container">
   <!-- Header -->
   <div class="dashboard-header">
-    <h1>Welcome back, {{ currentUser?.name }}! 👋</h1>
-    <p class="subtitle">Here's what's happening with your household today</p>
-  </div>
-  <!-- Create Task dropdown-->
+    <div class="header-left">
+      <h1>Welcome back, {{ currentUser?.name }}! 👋</h1>
+      <p class="subtitle">Here's what's happening with your household today</p>
+    </div>
     <div class="header-actions" *ngIf="isHouseholdAdmin()">
       <button mat-raised-button color="primary" (click)="openCreateTaskDialog()" class="header-create-btn">
         <mat-icon>add</mat-icon> Create Task
@@ -223,7 +223,7 @@
       </div>
     </div>
   </div>
-</div>
+</div>  
 
 <!-- Create/Edit Task Dialog -->
 <div class="task-dialog-overlay" *ngIf="showCreateTask" (click)="closeCreateTaskDialog()">
