@@ -32,6 +32,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/households', require('./routes/householdRoutes'));
 app.use('/api/tasks', require('./routes/taskRoutes'));
 app.use('/api/password', require('./routes/passwordRoutes'));
+app.use('/api/announcements', require('./routes/announcementRoutes'));
 
 // Health check
 app.get('/api/health', (req, res) => {
