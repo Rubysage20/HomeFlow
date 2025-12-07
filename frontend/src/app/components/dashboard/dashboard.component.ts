@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../services/auth.service';
 import { TaskService } from '../../services/task.service';
 import { HouseholdService } from '../../services/household.service';
+import { AnnouncementService } from '../../services/announcement.service';  
 import { User, Task, Household } from '../../models/models';
 
 @Component({
@@ -24,6 +25,16 @@ export class DashboardComponent implements OnInit {
     pendingTasks: 0
   };
 
+   announcements: any[] = [];
+  showAnnouncementDialog = false;
+  newAnnouncement = {
+    title: '',
+    message: '',
+    type: 'info' as 'info' | 'important' | 'celebration' | 'reminder',
+    expiresAt: ''
+  };
+  rewardProgress: any = null;
+
   isLoading = true;
   showCreateTask = false;
   editingTask: Task | null = null;
@@ -41,11 +52,13 @@ export class DashboardComponent implements OnInit {
     private authService: AuthService,
     private taskService: TaskService,
     private householdService: HouseholdService,
+    private announcementService: AnnouncementService,
     public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
     this.loadUserData();
+    this.loadAnnouncements();
   }
 
   loadUserData(): void {
@@ -253,7 +266,7 @@ export class DashboardComponent implements OnInit {
     return creatorId === userId;
   }
 
- completeTask(taskId: string): void {
+completeTask(taskId: string): void {
     this.taskService.completeTask(taskId).subscribe({
       next: (response) => {
         // Update stats
@@ -262,6 +275,16 @@ export class DashboardComponent implements OnInit {
         }
         if (response.streakDays) {
           this.stats.streakDays = response.streakDays;
+        }
+        
+        // Show badge notification if new badges earned
+        if (response.newBadges && response.newBadges.length > 0) {
+          this.showBadgeNotification(response.newBadges);
+        }
+        
+        // Update reward progress
+        if (response.nextReward) {
+          this.rewardProgress = response.nextReward;
         }
         
         // Reload tasks
@@ -355,5 +378,99 @@ canCompleteTask(task: Task): boolean {
     }
     
     return tasks;
+  }
+  // Announcement methods
+  loadAnnouncements(): void {
+    this.announcementService.getAnnouncements().subscribe({
+      next: (response) => {
+        this.announcements = response.announcements || [];
+      },
+      error: (error) => {
+        console.error('Error loading announcements:', error);
+      }
+    });
+  }
+
+  openAnnouncementDialog(): void {
+    this.showAnnouncementDialog = true;
+    this.resetAnnouncement();
+  }
+
+  closeAnnouncementDialog(): void {
+    this.showAnnouncementDialog = false;
+    this.resetAnnouncement();
+  }
+
+  resetAnnouncement(): void {
+    this.newAnnouncement = {
+      title: '',
+      message: '',
+      type: 'info',
+      expiresAt: ''
+    };
+  }
+
+  createAnnouncement(): void {
+    if (!this.newAnnouncement.title || !this.newAnnouncement.message) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    const data: any = {
+      title: this.newAnnouncement.title,
+      message: this.newAnnouncement.message,
+      type: this.newAnnouncement.type
+    };
+
+    if (this.newAnnouncement.expiresAt) {
+      data.expiresAt = this.newAnnouncement.expiresAt;
+    }
+
+    this.announcementService.createAnnouncement(data).subscribe({
+      next: (response) => {
+        this.loadAnnouncements();
+        this.closeAnnouncementDialog();
+      },
+      error: (error) => {
+        console.error('Error creating announcement:', error);
+        alert('Failed to create announcement');
+      }
+    });
+  }
+
+  deleteAnnouncement(id: string): void {
+    if (confirm('Are you sure you want to delete this announcement?')) {
+      this.announcementService.deleteAnnouncement(id).subscribe({
+        next: () => {
+          this.loadAnnouncements();
+        },
+        error: (error) => {
+          console.error('Error deleting announcement:', error);
+        }
+      });
+    }
+  }
+
+  getAnnouncementIcon(type: string): string {
+    switch (type) {
+      case 'important': return '⚠️';
+      case 'celebration': return '🎉';
+      case 'reminder': return '🔔';
+      default: return 'ℹ️';
+    }
+  }
+
+  getAnnouncementColor(type: string): string {
+    switch (type) {
+      case 'important': return '#f44336';
+      case 'celebration': return '#4caf50';
+      case 'reminder': return '#ff9800';
+      default: return '#2196f3';
+    }
+  }
+
+  showBadgeNotification(badges: any[]): void {
+    const badgeNames = badges.map(b => `${b.icon} ${b.name}`).join(', ');
+    alert(`🎉 Congratulations! You earned new badges:\n\n${badgeNames}`);
   }
 }

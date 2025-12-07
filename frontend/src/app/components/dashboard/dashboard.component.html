@@ -20,6 +20,48 @@
   <!-- Main Content -->
   <div *ngIf="!isLoading" class="dashboard-content">
     
+    <!-- Announcements Section -->
+    <div class="announcements-section" *ngIf="announcements.length > 0 || isHouseholdAdmin()">
+      <mat-card class="announcements-card">
+        <mat-card-header>
+          <mat-card-title style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <span>📢 Announcements</span>
+            <button mat-raised-button color="primary" 
+                    *ngIf="isHouseholdAdmin()"
+                    (click)="openAnnouncementDialog()" 
+                    style="height: 36px;">
+              <mat-icon>add</mat-icon> New
+            </button>
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="announcements.length === 0" class="empty-state">
+            <p>No announcements yet.</p>
+          </div>
+          
+          <div *ngFor="let announcement of announcements" 
+               class="announcement-item"
+               [style.border-left-color]="getAnnouncementColor(announcement.type)">
+            <div class="announcement-header">
+              <span class="announcement-icon">{{ getAnnouncementIcon(announcement.type) }}</span>
+              <h3>{{ announcement.title }}</h3>
+              <button mat-icon-button 
+                      *ngIf="isHouseholdAdmin()"
+                      (click)="deleteAnnouncement(announcement._id)"
+                      style="margin-left: auto;">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            <p class="announcement-message">{{ announcement.message }}</p>
+            <div class="announcement-footer">
+              <span class="announcement-author">By {{ announcement.createdBy.name }}</span>
+              <span class="announcement-date">{{ announcement.createdAt | date:'short' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
     <!-- Stats Cards Row -->
     <div class="stats-row">
       <mat-card class="stat-card points-card">
@@ -63,21 +105,10 @@
         <mat-card class="section-card">
           <mat-card-header>
             <mat-card-title>Your Tasks</mat-card-title>
-            <!-- Create Task button for admins 
-            <button mat-raised-button color="accent" class="create-task-btn" 
-                    *ngIf="isHouseholdAdmin()"
-                    (click)="openCreateTaskDialog()">
-              <mat-icon>add</mat-icon> Create Task
-            </button>-->
           </mat-card-header>
           <mat-card-content>
             <div *ngIf="getTasksByStatus('pending').length === 0" class="empty-state">
               <p>🎉 No pending tasks! You're all caught up!</p>
-              <!--<button mat-raised-button color="primary" 
-                      *ngIf="isHouseholdAdmin()"
-                      (click)="openCreateTaskDialog()">
-                Create Your First Task
-              </button>-->
             </div>
             
             <div *ngFor="let task of getTasksByStatus('pending')" class="task-item">
@@ -124,7 +155,8 @@
             </div>
           </mat-card-content>
         </mat-card>
-         <!-- Completed Tasks Section - Collapsible -->
+
+        <!-- Completed Tasks Section - Collapsible -->
         <mat-card class="section-card" style="margin-top: 20px;">
           <mat-card-header (click)="toggleCompletedTasks()" style="cursor: pointer;">
             <mat-card-title style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
@@ -154,8 +186,6 @@
                 </select>
               </mat-form-field>
             </div>
-            </mat-card-content>
-            </mat-card>
             
             <!-- Completed Tasks List with Scroll -->
             <div class="completed-tasks-container">
@@ -198,9 +228,34 @@
           </mat-card-content>
         </mat-card>
       </div>
-
+      
       <!-- Sidebar -->
       <div class="sidebar">
+        <!-- Reward Progress Widget -->
+        <mat-card class="section-card reward-card" *ngIf="rewardProgress">
+          <mat-card-header>
+            <mat-card-title>💰 Weekly Reward Progress</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="reward-progress">
+              <div class="reward-amount">
+                <h2>${{ rewardProgress.rewardAmount }}</h2>
+                <p>Next Reward</p>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" 
+                     [style.width.%]="(rewardProgress.currentPoints / (rewardProgress.currentPoints + rewardProgress.pointsNeeded)) * 100">
+                </div>
+              </div>
+              <p class="points-remaining">
+                {{ rewardProgress.pointsNeeded }} points to go!
+              </p>
+              <p class="current-points">
+                Current: {{ rewardProgress.currentPoints }} weekly points
+              </p>
+            </div>
+          </mat-card-content>
+        </mat-card>
         
         <!-- Badges Section -->
         <mat-card class="section-card badges-card">
@@ -256,72 +311,113 @@
       </div>
     </div>
   </div>
-</div>  
 
-<!-- Create/Edit Task Dialog -->
-<div class="task-dialog-overlay" *ngIf="showCreateTask" (click)="closeCreateTaskDialog()">
-  <div class="task-dialog" (click)="$event.stopPropagation()">
-    <h2>{{ editingTask ? 'Edit Task' : 'Create New Task' }}</h2>
-    
-    <form class="task-form">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Task Title</mat-label>
-        <input matInput [(ngModel)]="newTask.title" name="title" placeholder="e.g., Clean the kitchen" required>
-      </mat-form-field>
+  <!-- Create/Edit Task Dialog -->
+  <div class="task-dialog-overlay" *ngIf="showCreateTask" (click)="closeCreateTaskDialog()">
+    <div class="task-dialog" (click)="$event.stopPropagation()">
+      <h2>{{ editingTask ? 'Edit Task' : 'Create New Task' }}</h2>
+      
+      <form class="task-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Task Title</mat-label>
+          <input matInput [(ngModel)]="newTask.title" name="title" placeholder="e.g., Clean the kitchen" required>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Description</mat-label>
-        <textarea matInput [(ngModel)]="newTask.description" name="description" rows="3" placeholder="Add details..."></textarea>
-      </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput [(ngModel)]="newTask.description" name="description" rows="3" placeholder="Add details..."></textarea>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Priority</mat-label>
-        <select matNativeControl [(ngModel)]="newTask.priority" name="priority" id="priority" aria-label="Task priority">
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
-      </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Priority</mat-label>
+          <select matNativeControl [(ngModel)]="newTask.priority" name="priority" id="priority" aria-label="Task priority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Category</mat-label>
-        <select matNativeControl [(ngModel)]="newTask.category" name="category" id="category" aria-label="Task category">
-          <option value="cleaning">Cleaning</option>
-          <option value="cooking">Cooking</option>
-          <option value="shopping">Shopping</option>
-          <option value="maintenance">Maintenance</option>
-          <option value="childcare">Childcare</option>
-          <option value="petcare">Pet Care</option>
-          <option value="other">Other</option>
-        </select>
-      </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Category</mat-label>
+          <select matNativeControl [(ngModel)]="newTask.category" name="category" id="category" aria-label="Task category">
+            <option value="cleaning">Cleaning</option>
+            <option value="cooking">Cooking</option>
+            <option value="shopping">Shopping</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="childcare">Childcare</option>
+            <option value="petcare">Pet Care</option>
+            <option value="other">Other</option>
+          </select>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width" *ngIf="householdMembers.length > 0">
-        <mat-label>Assign To (Optional)</mat-label>
-        <select matNativeControl [(ngModel)]="newTask.assignedTo" name="assignedTo" id="assignedTo" aria-label="Assign task to household member">
-          <option value="">Auto-assign</option>
-          <option *ngFor="let member of householdMembers" [value]="member._id || member.id">{{ member.name }}</option>
-        </select>
-      </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width" *ngIf="householdMembers.length > 0">
+          <mat-label>Assign To (Optional)</mat-label>
+          <select matNativeControl [(ngModel)]="newTask.assignedTo" name="assignedTo" id="assignedTo" aria-label="Assign task to household member">
+            <option value="">Auto-assign</option>
+            <option *ngFor="let member of householdMembers" [value]="member._id || member.id">{{ member.name }}</option>
+          </select>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Due Date (Optional)</mat-label>
-        <input matInput type="date" [(ngModel)]="newTask.dueDate" name="dueDate">
-      </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Due Date (Optional)</mat-label>
+          <input matInput type="date" [(ngModel)]="newTask.dueDate" name="dueDate">
+        </mat-form-field>
 
-      <div class="dialog-actions">
-        <button mat-button type="button" (click)="closeCreateTaskDialog()">Cancel</button>
-        <button mat-raised-button color="primary" type="button"
-                *ngIf="!editingTask"
-                (click)="createTask()">
-          Create Task
-        </button>
-        <button mat-raised-button color="primary" type="button"
-                *ngIf="editingTask"
-                (click)="updateTask()">
-          Update Task
-        </button>
-      </div>
-    </form>
+        <div class="dialog-actions">
+          <button mat-button type="button" (click)="closeCreateTaskDialog()">Cancel</button>
+          <button mat-raised-button color="primary" type="button"
+                  *ngIf="!editingTask"
+                  (click)="createTask()">
+            Create Task
+          </button>
+          <button mat-raised-button color="primary" type="button"
+                  *ngIf="editingTask"
+                  (click)="updateTask()">
+            Update Task
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Create Announcement Dialog -->
+  <div class="task-dialog-overlay" *ngIf="showAnnouncementDialog" (click)="closeAnnouncementDialog()">
+    <div class="task-dialog" (click)="$event.stopPropagation()">
+      <h2>📢 Create Announcement</h2>
+      
+      <form class="task-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Title</mat-label>
+          <input matInput [(ngModel)]="newAnnouncement.title" name="title" placeholder="e.g., Weekly Cleanup Day" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Message</mat-label>
+          <textarea matInput [(ngModel)]="newAnnouncement.message" name="message" rows="4" placeholder="Write your announcement..." required></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Type</mat-label>
+          <select matNativeControl [(ngModel)]="newAnnouncement.type" name="type">
+            <option value="info">ℹ️ Info</option>
+            <option value="important">⚠️ Important</option>
+            <option value="celebration">🎉 Celebration</option>
+            <option value="reminder">🔔 Reminder</option>
+          </select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Expires (Optional)</mat-label>
+          <input matInput type="datetime-local" [(ngModel)]="newAnnouncement.expiresAt" name="expiresAt">
+        </mat-form-field>
+
+        <div class="dialog-actions">
+          <button mat-button type="button" (click)="closeAnnouncementDialog()">Cancel</button>
+          <button mat-raised-button color="primary" type="button" (click)="createAnnouncement()">
+            Post Announcement
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
