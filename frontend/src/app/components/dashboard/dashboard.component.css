@@ -471,4 +471,48 @@ mat-card-header {
   .header-create-btn {
     width: 100%;
   }
+  /* Completed Tasks Filters */
+.completed-filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.completed-filters mat-form-field {
+  min-width: 200px;
+}
+
+/* Completed Tasks Container with Scroll */
+.completed-tasks-container {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Scrollbar Styling */
+.completed-tasks-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.completed-tasks-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.completed-tasks-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.completed-tasks-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Not Assigned Message */
+.not-assigned-msg {
+  color: #666;
+  font-style: italic;
+  font-size: 14px;
+}
 }

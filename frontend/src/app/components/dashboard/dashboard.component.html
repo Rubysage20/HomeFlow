@@ -102,9 +102,14 @@
               </div>
               
               <div class="task-actions">
-                <button mat-raised-button color="primary" (click)="completeTask(task._id)">
+                <button mat-raised-button color="primary" 
+                        *ngIf="canCompleteTask(task)"
+                        (click)="completeTask(task._id)">
                   Mark Complete
                 </button>
+                <span *ngIf="!canCompleteTask(task)" class="not-assigned-msg">
+                  Assigned to {{ task.assignedTo?.name }}
+                </span>
                 <button mat-button color="accent" 
                         *ngIf="isHouseholdAdmin()"
                         (click)="openEditTaskDialog(task)">
@@ -119,47 +124,75 @@
             </div>
           </mat-card-content>
         </mat-card>
-          <mat-card class="section-card" style="margin-top: 20px;">
-          <mat-card-header>
-            <mat-card-title>Completed Tasks ({{ getTasksByStatus('completed').length }})</mat-card-title>
+         <!-- Completed Tasks Section - Collapsible -->
+        <mat-card class="section-card" style="margin-top: 20px;">
+          <mat-card-header (click)="toggleCompletedTasks()" style="cursor: pointer;">
+            <mat-card-title style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+              <span>Completed Tasks ({{ getTasksByStatus('completed').length }})</span>
+              <mat-icon>{{ completedTasksExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </mat-card-title>
           </mat-card-header>
-          <mat-card-content>
-            <div *ngIf="getTasksByStatus('completed').length === 0" class="empty-state">
-              <p>No completed tasks yet. Start completing tasks to see them here!</p>
+          
+          <mat-card-content *ngIf="completedTasksExpanded">
+            <!-- Filters -->
+            <div class="completed-filters">
+              <mat-form-field appearance="outline" style="margin-right: 15px;">
+                <mat-label>Sort By</mat-label>
+                <select matNativeControl [(ngModel)]="completedTasksSort">
+                  <option value="date">Date (Newest First)</option>
+                  <option value="person">Person (A-Z)</option>
+                </select>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline">
+                <mat-label>Filter by Person</mat-label>
+                <select matNativeControl [(ngModel)]="selectedPersonFilter">
+                  <option value="all">All Members</option>
+                  <option *ngFor="let member of householdMembers" [value]="member._id || member.id">
+                    {{ member.name }}
+                  </option>
+                </select>
+              </mat-form-field>
             </div>
-            <!-- Completed Task-->
-            <div *ngFor="let task of getTasksByStatus('completed')" class="task-item completed-task">
-              <div class="task-header">
-                <div class="task-title-row">
-                  <span class="task-priority-dot" 
-                        [style.background-color]="getPriorityColor(task.priority)"></span>
-                  <h3>{{ task.title }}</h3>
-                  <span style="margin-left: 10px; color: #4caf50; font-weight: bold;">✓ Completed</span>
-                </div>
-                <span class="task-points" style="color: #4caf50;">+{{ task.points }} pts</span>
+            </mat-card-content>
+            </mat-card>
+            
+            <!-- Completed Tasks List with Scroll -->
+            <div class="completed-tasks-container">
+              <div *ngIf="getSortedCompletedTasks().length === 0" class="empty-state">
+                <p>No completed tasks match your filters.</p>
               </div>
               
-              <p class="task-description" *ngIf="task.description">
-                {{ task.description }}
-              </p>
-              
-              <div class="task-footer">
-                <mat-chip class="category-chip">{{ task.category }}</mat-chip>
+              <div *ngFor="let task of getSortedCompletedTasks()" class="task-item completed-task">
+                <div class="task-header">
+                  <div class="task-title-row">
+                    <span class="task-priority-dot" 
+                          [style.background-color]="getPriorityColor(task.priority)"></span>
+                    <h3>{{ task.title }}</h3>
+                    <span style="margin-left: 10px; color: #4caf50; font-weight: bold;">✓ Completed</span>
+                  </div>
+                  <span class="task-points" style="color: #4caf50;">+{{ task.points }} pts</span>
+                </div>
                 
-                <!-- Show who it was assigned to -->
-                <span class="task-assigned" *ngIf="task.assignedTo">
-                  Assigned to: {{ task.assignedTo.name }}
-                </span>
+                <p class="task-description" *ngIf="task.description">
+                  {{ task.description }}
+                </p>
                 
-                <!-- Show who completed it -->
-                <span class="task-completed-by" *ngIf="task.completedBy" style="margin-left: 15px; color: #666;">
-                  <strong>Completed by:</strong> {{ task.completedBy.name }}
-                </span>
-                
-                <!-- Show when it was completed -->
-                <span *ngIf="task.completedAt" style="margin-left: 15px; color: #666; font-size: 14px;">
-                  <strong>Completed:</strong> {{ task.completedAt | date:'short' }}
-                </span>
+                <div class="task-footer">
+                  <mat-chip class="category-chip">{{ task.category }}</mat-chip>
+                  
+                  <span class="task-assigned" *ngIf="task.assignedTo">
+                    Assigned to: {{ task.assignedTo.name }}
+                  </span>
+                  
+                  <span class="task-completed-by" *ngIf="task.completedBy" style="margin-left: 15px; color: #666;">
+                    <strong>Completed by:</strong> {{ task.completedBy.name }}
+                  </span>
+                  
+                  <span *ngIf="task.completedAt" style="margin-left: 15px; color: #666; font-size: 14px;">
+                    <strong>Completed:</strong> {{ task.completedAt | date:'short' }}
+                  </span>
+                </div>
               </div>
             </div>
           </mat-card-content>

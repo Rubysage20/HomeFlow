@@ -2,6 +2,8 @@ const Task = require('../models/Task');
 const User = require('../models/User');
 const Household = require('../models/Household');
 const {sendTaskAssignmentEmail, sendTaskCompletionEmail} = require('../services/emailService');
+const { calculateReward, getNextReward, shouldResetWeekly } = require('../utils/rewardSystem');
+
 // Auto-assign algorithm - assigns task to member with lowest points
 const autoAssignTask = async (householdId) => {
   try {
@@ -237,52 +239,85 @@ exports.completeTask = async (req, res) => {
       });
     }
 
+    // Get the assigned user
+    const assignedUserId = task.assignedTo;
+    const assignedUser = await User.findById(assignedUserId);
+    
+    if (!assignedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Assigned user not found'
+      });
+    }
+
+    // Check if weekly reset is needed
+    if (shouldResetWeekly(assignedUser.lastWeeklyReset)) {
+      assignedUser.weeklyPoints = 0;
+      assignedUser.lastWeeklyReset = new Date();
+    }
+
     // Update task status
     task.status = 'completed';
     task.completedAt = new Date();
     task.completedBy = req.user.id;
     await task.save();
 
-    // Award points to user
-      const assignedUserId = task.assignedTo || req.user.id; // Default to current user if not assigned
-    const user = await User.findById(assignedUserId);
-    user.points += task.points;
+    // Award points to assigned user
+    assignedUser.points += task.points;
+    assignedUser.weeklyPoints += task.points;
+    assignedUser.totalLifetimePoints += task.points;
     
     // Check for level up (every 100 points = 1 level)
-    const newLevel = Math.floor(user.points / 100) + 1;
-    if (newLevel > user.level) {
-      user.level = newLevel;
+    const newLevel = Math.floor(assignedUser.points / 100) + 1;
+    if (newLevel > assignedUser.level) {
+      assignedUser.level = newLevel;
     }
 
     // Update streak
-    const today = new Date().setHours(0, 0, 0, 0);
-    const lastActive = user.lastActiveDate ? new Date(user.lastActiveDate).setHours(0, 0, 0, 0) : 0;
-    const daysDiff = Math.floor((today - lastActive) / (1000 * 60 * 60 * 24));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     
-    if (daysDiff === 1) {
-      user.streakDays += 1;
-    } else if (daysDiff > 1) {
-      user.streakDays = 1;
+    if (assignedUser.lastActiveDate) {
+      const lastActive = new Date(assignedUser.lastActiveDate);
+      lastActive.setHours(0, 0, 0, 0);
+      
+      const daysDiff = Math.floor((today - lastActive) / (1000 * 60 * 60 * 24));
+      
+      if (daysDiff === 1) {
+        assignedUser.streakDays += 1;
+      } else if (daysDiff > 1) {
+        assignedUser.streakDays = 1;
+      }
+    } else {
+      assignedUser.streakDays = 1;
     }
-    user.lastActiveDate = new Date();
+    
+    assignedUser.lastActiveDate = today;
+    await assignedUser.save();
 
-    await user.save();
+    // Calculate reward info
+    const currentReward = calculateReward(assignedUser.weeklyPoints);
+    const nextReward = getNextReward(assignedUser.weeklyPoints);
 
+    // Populate task details
     const populatedTask = await Task.findById(task._id)
       .populate('assignedTo', 'name email')
+      .populate('createdBy', 'name email')
       .populate('completedBy', 'name email');
 
-    // Send email notification to household members
+    // Send email notification to household members (except the person who completed it)
     try {
       const household = await Household.findById(task.household).populate('members.user');
       if (household) {
+        const completedById = req.user.id;
         for (const member of household.members) {
-          if (member.user && member.user._id.toString() !== req.user.id) {
+          // Send to everyone EXCEPT the person who completed the task
+          if (member.user && member.user._id.toString() !== completedById) {
             await sendTaskCompletionEmail(
               member.user.email,
               member.user.name,
               populatedTask,
-              user.name
+              assignedUser.name
             );
           }
         }
@@ -295,9 +330,13 @@ exports.completeTask = async (req, res) => {
       success: true,
       task: populatedTask,
       pointsEarned: task.points,
-      newLevel: user.level,
-      newPoints: user.points,
-      streakDays: user.streakDays
+      newLevel: assignedUser.level,
+      newPoints: assignedUser.points,
+      weeklyPoints: assignedUser.weeklyPoints,
+      totalLifetimePoints: assignedUser.totalLifetimePoints,
+      currentReward,
+      nextReward,
+      streakDays: assignedUser.streakDays
     });
   } catch (error) {
     console.error('Complete task error:', error);

@@ -306,4 +306,54 @@ export class DashboardComponent implements OnInit {
     const member = this.householdMembers.find(m => m.id === userId || (m as any)._id === userId);
     return member ? member.name : 'Unknown';
   }
+canCompleteTask(task: Task): boolean {
+    if (!this.currentUser || !task.assignedTo) {
+      return false;
+    }
+    
+    const assignedUserId = typeof task.assignedTo === 'string' 
+      ? task.assignedTo 
+      : (task.assignedTo as any)._id || (task.assignedTo as any).id;
+    
+    const currentUserId = (this.currentUser as any)._id || this.currentUser.id;
+    
+    return assignedUserId === currentUserId;
+  }
+   completedTasksExpanded = false;
+  completedTasksSort: 'date' | 'person' = 'date';
+  selectedPersonFilter: string = 'all';
+  toggleCompletedTasks(): void {
+    this.completedTasksExpanded = !this.completedTasksExpanded;
+  }
+
+  getSortedCompletedTasks(): Task[] {
+    let tasks = this.getTasksByStatus('completed');
+    
+    // Filter by person
+    if (this.selectedPersonFilter !== 'all') {
+      tasks = tasks.filter(t => {
+        const completedById = t.completedBy 
+          ? ((t.completedBy as any)._id || (t.completedBy as any).id)
+          : null;
+        return completedById === this.selectedPersonFilter;
+      });
+    }
+    
+    // Sort
+    if (this.completedTasksSort === 'date') {
+      tasks.sort((a, b) => {
+        const dateA = new Date(a.completedAt || 0).getTime();
+        const dateB = new Date(b.completedAt || 0).getTime();
+        return dateB - dateA; // Newest first
+      });
+    } else {
+      tasks.sort((a, b) => {
+        const nameA = (a.completedBy as any)?.name || '';
+        const nameB = (b.completedBy as any)?.name || '';
+        return nameA.localeCompare(nameB);
+      });
+    }
+    
+    return tasks;
+  }
 }
