@@ -420,3 +420,55 @@ mat-card-header {
   border-radius: 4px;
   font-size: 14px;
 }
+/* Header with Create Task Button */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.header-create-btn {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+
+.header-create-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.header-create-btn mat-icon {
+  margin-right: 4px;
+}
+
+/* Responsive: Stack on mobile */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-actions {
+    width: 100%;
+    margin-top: 15px;
+  }
+  
+  .header-create-btn {
+    width: 100%;
+  }
+}

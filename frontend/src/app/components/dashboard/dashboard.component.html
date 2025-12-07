@@ -4,6 +4,13 @@
     <h1>Welcome back, {{ currentUser?.name }}! 👋</h1>
     <p class="subtitle">Here's what's happening with your household today</p>
   </div>
+  <!-- Create Task dropdown-->
+    <div class="header-actions" *ngIf="isHouseholdAdmin()">
+      <button mat-raised-button color="primary" (click)="openCreateTaskDialog()" class="header-create-btn">
+        <mat-icon>add</mat-icon> Create Task
+      </button>
+    </div>
+  </div>
 
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-container">
@@ -56,20 +63,21 @@
         <mat-card class="section-card">
           <mat-card-header>
             <mat-card-title>Your Tasks</mat-card-title>
+            <!-- Create Task button for admins 
             <button mat-raised-button color="accent" class="create-task-btn" 
                     *ngIf="isHouseholdAdmin()"
                     (click)="openCreateTaskDialog()">
               <mat-icon>add</mat-icon> Create Task
-            </button>
+            </button>-->
           </mat-card-header>
           <mat-card-content>
             <div *ngIf="getTasksByStatus('pending').length === 0" class="empty-state">
               <p>🎉 No pending tasks! You're all caught up!</p>
-              <button mat-raised-button color="primary" 
+              <!--<button mat-raised-button color="primary" 
                       *ngIf="isHouseholdAdmin()"
                       (click)="openCreateTaskDialog()">
                 Create Your First Task
-              </button>
+              </button>-->
             </div>
             
             <div *ngFor="let task of getTasksByStatus('pending')" class="task-item">
