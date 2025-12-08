@@ -297,7 +297,7 @@ exports.completeTask = async (req, res) => {
     await assignedUser.save();
 
     // Check and award badges
-     const Task = require('../models/Task');
+    
     const completedTasksCount = await Task.countDocuments({
       assignedTo: assignedUser._id,
       status: 'completed'
