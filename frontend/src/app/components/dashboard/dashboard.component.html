@@ -240,12 +240,12 @@
       <!-- Sidebar -->
       <div class="sidebar">
         <!-- Reward Progress Widget -->
-        <mat-card class="section-card reward-card" *ngIf="rewardProgress">
+        <mat-card class="section-card reward-card" *ngIf="rewardProgress || (currentUser && currentUser.weeklyPoints !== undefined)">
           <mat-card-header>
             <mat-card-title>💰 Weekly Reward Progress</mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <div class="reward-progress">
+            <div class="reward-progress" *ngIf="rewardProgress">
               <div class="reward-amount">
                 <h2>${{ rewardProgress.rewardAmount }}</h2>
                 <p>Next Reward</p>
@@ -260,6 +260,23 @@
               </p>
               <p class="current-points">
                 Current: {{ rewardProgress.currentPoints }} weekly points
+              </p>
+            </div>
+             <div class="reward-progress" *ngIf="!rewardProgress && currentUser">
+              <div class="reward-amount">
+                <h2>$5</h2>
+                <p>First Reward</p>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" 
+                     [style.width.%]="(currentUser.weeklyPoints || 0) / 50 * 100">
+                </div>
+              </div>
+              <p class="points-remaining">
+                {{ 50 - (currentUser.weeklyPoints || 0) }} points to go!
+              </p>
+              <p class="current-points">
+                Current: {{ currentUser.weeklyPoints || 0 }} weekly points
               </p>
             </div>
           </mat-card-content>

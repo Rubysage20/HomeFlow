@@ -136,7 +136,13 @@ exports.getMe = async (req, res) => {
         points: user.points,
         level: user.level,
         badges: user.badges,
-        streakDays: user.streakDays
+        streakDays: user.streakDays,
+        totalLifetimePoints: user.totalLifetimePoints,
+        avatar: user.avatar,
+        favoriteColor: user.favoriteColor,
+        theme: user.theme,
+        bio: user.bio,
+        createdAt: user.createdAt
       }
     });
   } catch (error) {
