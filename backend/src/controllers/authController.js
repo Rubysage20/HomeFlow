@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { shouldResetWeekly } = require('../utils/rewardSystem');
 
 // Generate JWT Token
 const generateToken = (userId) => {
@@ -130,6 +131,7 @@ exports.getMe = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        weeklyPoints: user.weeklyPoints,
         household: user.household,
         points: user.points,
         level: user.level,

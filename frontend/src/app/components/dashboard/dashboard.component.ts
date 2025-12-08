@@ -67,9 +67,21 @@ export class DashboardComponent implements OnInit {
         this.currentUser = user;
         this.stats.totalPoints = user.points;
         this.stats.streakDays = user.streakDays;
+
+          // Calculate reward progress
+        if (user.weeklyPoints !== undefined) {
+          this.calculateRewardProgress(user.weeklyPoints);
+        }
         
         if (user.household) {
-          this.loadHouseholdData(user.household);
+          // Extract household ID if it's an object
+          const householdId = typeof user.household === 'string' 
+            ? user.household 
+            : (user.household as any)._id || (user.household as any).id;
+          
+          if (householdId) {
+            this.loadHouseholdData(householdId);
+          }
         }
         
         this.loadTasks();
@@ -77,6 +89,30 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  calculateRewardProgress(weeklyPoints: number): void {
+    const rewardTiers = [
+      { points: 50, reward: 5 },
+      { points: 100, reward: 10 },
+      { points: 150, reward: 15 },
+      { points: 200, reward: 20 }
+    ];
+
+    // Find next reward tier
+    for (const tier of rewardTiers) {
+      if (weeklyPoints < tier.points) {
+        this.rewardProgress = {
+          pointsNeeded: tier.points - weeklyPoints,
+          rewardAmount: tier.reward,
+          currentPoints: weeklyPoints
+        };
+        return;
+      }
+    }
+
+    // Max tier reached
+    this.rewardProgress = null;
+  }
+  
   loadTasks(): void {
     this.taskService.getTasks().subscribe({
       next: (response) => {
